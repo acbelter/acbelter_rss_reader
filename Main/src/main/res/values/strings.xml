@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_name">ARSSReader</string>
+    <string name="add">Add</string>
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
+    <string name="rss_link_hint">Enter URL of a new RSS channel:</string>
+    <string name="url_prefix">http://</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="loading_channel">Loading channel data...</string>
+    <string name="loading_channel_items">Loading posts...</string>
+    <string name="no_rss_data">Failed to load RSS channel data.</string>
+    <string name="no_channels">No channels</string>
+    <string name="no_items">No items</string>
+    <string name="clear_data">Clear data</string>
+    <string name="toast_duplicate_channel">Channel with this link already exists.</string>
+    <string name="new_channel">New channel</string>
+</resources>

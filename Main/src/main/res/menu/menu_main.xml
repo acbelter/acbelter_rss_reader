@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+      android:id="@+id/update_item"
+      app:showAsAction="always"
+      android:icon="@drawable/ic_action_refresh"
+      android:title="@string/update"/>
+
+    <item
+      android:id="@+id/add_item"
+      app:showAsAction="always"
+      android:icon="@drawable/ic_action_new"
+      android:title="@string/add"/>
+
+    <item
+      android:id="@+id/clear_data_item"
+      app:showAsAction="never"
+      android:title="@string/clear_data"/>
+</menu>
