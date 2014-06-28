@@ -10,6 +10,5 @@ public class Constants {
     public static final String KEY_EXCEPTION_CODE = "com.acbelter.rssreader.KEY_EXCEPTION_CODE";
     public static final String KEY_RSS_CHANNEL = "com.acbelter.rssreader.KEY_RSS_CHANNEL";
     public static final String KEY_RSS_ITEMS = "com.acbelter.rssreader.KEY_RSS_ITEMS";
-    public static final String KEY_RSS_ITEM = "com.acbelter.rssreader.KEY_RSS_ITEM";
     public static final String KEY_CHANNEL_ID = "com.acbelter.rssreader.KEY_CHANNEL_ID";
 }

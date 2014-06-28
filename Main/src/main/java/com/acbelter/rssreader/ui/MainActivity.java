@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,6 +42,11 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
 
     private ChannelsFragment mChannelsFragment;
     private ChannelItemsFragment mChannelItemsFragment;
+    private ItemFragment mItemFragment;
+
+    private static final String TAG_CF = ChannelsFragment.class.getSimpleName();
+    private static final String TAG_CIF = ChannelItemsFragment.class.getSimpleName();
+    private static final String TAG_IF = ItemFragment.class.getSimpleName();
 
     private NetworkApplication getApp() {
         return (NetworkApplication) getApplication();
@@ -57,14 +61,26 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         mController = new Controller(this);
 
         if (savedInstanceState == null) {
-            initFragments();
-            showChannelsFragment();
+            mChannelsFragment = new ChannelsFragment();
+            mChannelItemsFragment = new ChannelItemsFragment();
+            mItemFragment = new ItemFragment();
             mController.loadChannels();
+            showChannelsFragment();
         } else {
-            mChannelsFragment = (ChannelsFragment) mFragmentManager.findFragmentByTag(
-                    ChannelsFragment.class.getSimpleName());
-            mChannelItemsFragment = (ChannelItemsFragment) mFragmentManager.findFragmentByTag(
-                    ChannelItemsFragment.class.getSimpleName());
+            mChannelsFragment = (ChannelsFragment) mFragmentManager
+                    .findFragmentByTag(TAG_CF);
+            if (mChannelsFragment == null) {
+                mChannelsFragment = new ChannelsFragment();
+            }
+            mChannelItemsFragment = (ChannelItemsFragment) mFragmentManager
+                    .findFragmentByTag(TAG_CIF);
+            if (mChannelItemsFragment == null) {
+                mChannelItemsFragment = new ChannelItemsFragment();
+            }
+            mItemFragment = (ItemFragment) mFragmentManager.findFragmentByTag(TAG_IF);
+            if (mItemFragment == null) {
+                mItemFragment = new ItemFragment();
+            }
         }
 
         mActionModeCallback = new ActionMode.Callback() {
@@ -97,27 +113,17 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
                 mActionMode = null;
             }
         };
-
-    }
-
-    private void initFragments() {
-        mChannelsFragment = new ChannelsFragment();
-        mChannelItemsFragment = new ChannelItemsFragment();
-        FragmentTransaction ft = mFragmentManager.beginTransaction();
-        //ItemFragment itemFragment = new ItemFragment();
-        ft.add(R.id.content_frame, mChannelsFragment, ChannelsFragment.class.getSimpleName());
-        ft.add(R.id.content_frame, mChannelItemsFragment, ChannelItemsFragment.class
-                .getSimpleName());
-        //ft.hide(mChannelItemsFragment);
-        //ft.add(itemFragment, ItemFragment.class.getSimpleName());
-        ft.commit();
     }
 
     public void showChannelItems(int channelId) {
-        showChannelItemsFragment();
         mController.loadChannelItems(channelId);
+        showChannelItemsFragment();
     }
 
+    public void showItem(RSSItem item) {
+        mItemFragment.setItem(item);
+        showItemFragment();
+    }
 
     private void finishActionMode() {
         if (mIsActionMode) {
@@ -127,11 +133,23 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         }
     }
 
-    public void showChannelsFragment() {
+    private void showChannelsFragment() {
         FragmentTransaction ft = mFragmentManager.beginTransaction();
-        //ft.hide(mItemFragment);
-        ft.hide(mChannelItemsFragment);
-        ft.show(mChannelsFragment);
+        ft.replace(R.id.content_frame, mChannelsFragment, TAG_CF);
+        ft.commit();
+    }
+
+    private void showChannelItemsFragment() {
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        ft.replace(R.id.content_frame, mChannelItemsFragment, TAG_CIF);
+        ft.addToBackStack(null);
+        ft.commit();
+    }
+
+    private void showItemFragment() {
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        ft.replace(R.id.content_frame, mItemFragment, TAG_IF);
+        ft.addToBackStack(null);
         ft.commit();
     }
 
@@ -140,15 +158,6 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         if (mChannelsFragment != null) {
             mChannelsFragment.getAdapter().swapCursor(c);
         }
-    }
-
-    public void showChannelItemsFragment() {
-        FragmentTransaction ft = mFragmentManager.beginTransaction();
-        //ft.hide(mItemFragment);
-        ft.hide(mChannelsFragment);
-        ft.show(mChannelItemsFragment);
-        ft.addToBackStack(null);
-        ft.commit();
     }
 
     @Override
@@ -181,7 +190,7 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
                 return true;
             }
             case R.id.clear_data_item: {
-                mController.clearData();
+                showClearDataDialog();
                 return true;
             }
             default: {
@@ -259,6 +268,30 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         mRequestId = mServiceHelper.getRSSData(link);
     }
 
+    private void showClearDataDialog() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder
+                .setMessage(R.string.message_clear_data)
+                .setPositiveButton(getString(R.string.yes),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                mController.clearData();
+                                dialog.dismiss();
+                            }
+                        })
+                .setNegativeButton(getString(R.string.no),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        });
+
+        AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
+    }
+
     private void showAddChannelDialog() {
         View dialogContent = getLayoutInflater().inflate(R.layout.dialog_add_channel, null);
 
@@ -271,9 +304,6 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            boolean exists = mController.isChannelExists(linkEditText.getText()
-                                    .toString());
-                            Log.d("DEBUG", "CHANNEL EXISTS: " + exists);
                             addNewChannel(linkEditText.getText().toString());
                             dialog.dismiss();
                         }
@@ -282,7 +312,7 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
+                            dialog.dismiss();
                         }
                     });
 

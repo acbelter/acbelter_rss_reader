@@ -7,27 +7,38 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.acbelter.rssreader.R;
-import com.acbelter.rssreader.core.Constants;
 import com.acbelter.rssreader.core.RSSItem;
 
 public class ItemFragment extends Fragment {
+    private RSSItem mItem;
+    private TextView mTitle;
+    private TextView mDescription;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
     }
 
+    public void setItem(RSSItem item) {
+        mItem = item;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mItem != null) {
+            mTitle.setText(mItem.getTitle());
+            mDescription.setText(mItem.getDescription());
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_item, container, false);
-        RSSItem item = getArguments().getParcelable(Constants.KEY_RSS_ITEM);
-        TextView title = (TextView) view.findViewById(R.id.title);
-        TextView description = (TextView) view.findViewById(R.id.description);
-        if (item != null) {
-            title.setText(item.getTitle());
-            description.setText(item.getDescription());
-        }
+        mTitle = (TextView) view.findViewById(R.id.title);
+        mDescription = (TextView) view.findViewById(R.id.description);
         return view;
     }
 }

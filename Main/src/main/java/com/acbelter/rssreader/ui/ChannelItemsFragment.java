@@ -1,24 +1,32 @@
 package com.acbelter.rssreader.ui;
 
+import android.app.Activity;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import com.acbelter.rssreader.R;
+import com.acbelter.rssreader.core.RSSItem;
 import com.acbelter.rssreader.storage.RSSContentProvider;
 
 public class ChannelItemsFragment extends ListFragment {
     private SimpleCursorAdapter mAdapter;
+    private MainActivity mMainActivity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("DEBUG", "ON CREATE");
         setRetainInstance(true);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mMainActivity = (MainActivity) activity;
     }
 
     @Override
@@ -46,5 +54,8 @@ public class ChannelItemsFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
+        Cursor c = (Cursor) mAdapter.getItem(position);
+        RSSItem item = new RSSItem(c);
+        mMainActivity.showItem(item);
     }
 }

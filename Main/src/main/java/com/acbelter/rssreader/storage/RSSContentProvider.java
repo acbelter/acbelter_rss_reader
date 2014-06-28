@@ -147,18 +147,18 @@ public class RSSContentProvider extends ContentProvider {
         }
 
         mDatabase = mDatabaseHelper.getReadableDatabase();
-        Cursor cursor = null;
+        Cursor c = null;
         if (code == CODE_CHANNELS || code == CODE_CHANNEL_ID) {
-            cursor = mDatabase.query(TABLE_CHANNELS, projection, selection,
+            c = mDatabase.query(TABLE_CHANNELS, projection, selection,
                     selectionArgs, null, null, sortOrder);
-            cursor.setNotificationUri(getContext().getContentResolver(), URI_CHANNELS);
+            c.setNotificationUri(getContext().getContentResolver(), URI_CHANNELS);
         } else if (code == CODE_ITEMS || code == CODE_ITEM_ID) {
-            cursor = mDatabase.query(TABLE_ITEMS, projection, selection,
+            c = mDatabase.query(TABLE_ITEMS, projection, selection,
                     selectionArgs, null, null, sortOrder);
-            cursor.setNotificationUri(getContext().getContentResolver(), URI_ITEMS);
+            c.setNotificationUri(getContext().getContentResolver(), URI_ITEMS);
         }
 
-        return cursor;
+        return c;
     }
 
     @Override

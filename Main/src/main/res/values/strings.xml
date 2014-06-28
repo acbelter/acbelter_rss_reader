@@ -9,6 +9,8 @@
     <string name="url_prefix">http://</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="loading_channel">Loading channel data...</string>
     <string name="loading_channel_items">Loading posts...</string>
     <string name="no_rss_data">Failed to load RSS channel data.</string>
@@ -17,4 +19,5 @@
     <string name="clear_data">Clear data</string>
     <string name="toast_duplicate_channel">Channel with this link already exists.</string>
     <string name="new_channel">New channel</string>
+    <string name="message_clear_data">Clear all saved data?</string>
 </resources>
