@@ -42,7 +42,6 @@ public final class Controller implements LoaderManager.LoaderCallbacks<Cursor> {
     }
 
     public void clearData() {
-        // TODO Insert confirm dialog
         mContentResolver.delete(RSSContentProvider.URI_CHANNELS, null, null);
         mContentResolver.delete(RSSContentProvider.URI_ITEMS, null, null);
     }

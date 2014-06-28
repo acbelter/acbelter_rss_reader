@@ -11,13 +11,12 @@
     <string name="cancel">Cancel</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="loading_channel">Loading channel data...</string>
-    <string name="loading_channel_items">Loading posts...</string>
-    <string name="no_rss_data">Failed to load RSS channel data.</string>
-    <string name="no_channels">No channels</string>
-    <string name="no_items">No items</string>
+    <string name="loading">Loading...</string>
     <string name="clear_data">Clear data</string>
     <string name="toast_duplicate_channel">Channel with this link already exists.</string>
+    <string name="toast_io_exception">No connection.</string>
+    <string name="toast_access_denied">RSS data not available.</string>
+    <string name="toast_parse_exception">Invalid format of RSS data.</string>
     <string name="new_channel">New channel</string>
     <string name="message_clear_data">Clear all saved data?</string>
 </resources>

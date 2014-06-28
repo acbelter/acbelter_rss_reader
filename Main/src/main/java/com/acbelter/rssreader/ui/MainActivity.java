@@ -67,16 +67,19 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
             mController.loadChannels();
             showChannelsFragment();
         } else {
+            mRequestId = savedInstanceState.getInt(Constants.KEY_REQUEST_ID);
             mChannelsFragment = (ChannelsFragment) mFragmentManager
                     .findFragmentByTag(TAG_CF);
             if (mChannelsFragment == null) {
                 mChannelsFragment = new ChannelsFragment();
             }
+
             mChannelItemsFragment = (ChannelItemsFragment) mFragmentManager
                     .findFragmentByTag(TAG_CIF);
             if (mChannelItemsFragment == null) {
                 mChannelItemsFragment = new ChannelItemsFragment();
             }
+
             mItemFragment = (ItemFragment) mFragmentManager.findFragmentByTag(TAG_IF);
             if (mItemFragment == null) {
                 mItemFragment = new ItemFragment();
@@ -115,6 +118,12 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         };
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(Constants.KEY_REQUEST_ID, mRequestId);
+    }
+
     public void showChannelItems(int channelId) {
         mController.loadChannelItems(channelId);
         showChannelItemsFragment();
@@ -141,6 +150,8 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
 
     private void showChannelItemsFragment() {
         FragmentTransaction ft = mFragmentManager.beginTransaction();
+        ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         ft.replace(R.id.content_frame, mChannelItemsFragment, TAG_CIF);
         ft.addToBackStack(null);
         ft.commit();
@@ -148,6 +159,8 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
 
     private void showItemFragment() {
         FragmentTransaction ft = mFragmentManager.beginTransaction();
+        ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         ft.replace(R.id.content_frame, mItemFragment, TAG_IF);
         ft.addToBackStack(null);
         ft.commit();
@@ -200,18 +213,10 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
     }
 
     public static class LoadingDialogFragment extends DialogFragment {
-        private String mLoadingString;
-
-        public static LoadingDialogFragment newInstance(String loadingString) {
-            LoadingDialogFragment ldf = new LoadingDialogFragment();
-            ldf.mLoadingString = loadingString;
-            return ldf;
-        }
-
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             ProgressDialog progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setMessage(mLoadingString);
+            progressDialog.setMessage(getString(R.string.loading));
             return progressDialog;
         }
 
@@ -237,11 +242,6 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         mServiceHelper.removeListener(this);
     }
 
-    public SimpleNetworkServiceHelper getNetworkServiceHelper() {
-        return mServiceHelper;
-    }
-
-
     public void cancelCommand() {
         mServiceHelper.cancelRequest(mRequestId);
     }
@@ -261,10 +261,8 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
             return;
         }
 
-        LoadingDialogFragment loading = LoadingDialogFragment.newInstance(
-                getString(R.string.loading_channel));
+        LoadingDialogFragment loading = new LoadingDialogFragment();
         loading.show(mFragmentManager, LoadingDialogFragment.class.getSimpleName());
-        // FIXME Set mRequestId = -1
         mRequestId = mServiceHelper.getRSSData(link);
     }
 
@@ -320,6 +318,32 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         alertDialog.show();
     }
 
+    private void processException(int exceptionCode) {
+        switch (exceptionCode) {
+            case Constants.CODE_URL_EXCEPTION: {
+                break;
+            }
+            case Constants.CODE_IO_EXCEPTION: {
+                Toast.makeText(getApplicationContext(), getString(R.string.toast_io_exception),
+                        Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case Constants.CODE_ACCESS_EXCEPTION: {
+                Toast.makeText(getApplicationContext(), getString(R.string.toast_access_denied),
+                        Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case Constants.CODE_PARSE_EXCEPTION: {
+                Toast.makeText(getApplicationContext(), getString(R.string.toast_parse_exception),
+                        Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case Constants.CODE_UNKNOWN_EXCEPTION: {
+                break;
+            }
+        }
+    }
+
     @Override
     public void onServiceCallback(int requestId, Intent requestIntent,
                                   int resultCode, Bundle data) {
@@ -336,8 +360,8 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
                 // TODO For the future
             } else if (resultCode == GetRSSDataCommand.RESPONSE_FAILURE) {
                 dismissLoadingDialog();
-                Toast.makeText(getApplicationContext(), getString(R.string.no_rss_data),
-                        Toast.LENGTH_LONG).show();
+                int exceptionCode = data.getInt(Constants.KEY_EXCEPTION_CODE);
+                processException(exceptionCode);
             }
         }
     }
