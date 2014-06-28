@@ -35,9 +35,9 @@ public final class Controller implements LoaderManager.LoaderCallbacks<Cursor> {
         mLoaderManager.initLoader(CHANNELS_LOADER_ID, null, this);
     }
 
-    public void loadChannelItems(int channelId) {
+    public void loadChannelItems(long channelId) {
         Bundle args = new Bundle();
-        args.putInt(Constants.KEY_CHANNEL_ID, channelId);
+        args.putLong(Constants.KEY_CHANNEL_ID, channelId);
         mLoaderManager.initLoader(CHANNEL_ITEMS_LOADER_ID, args, this);
     }
 
@@ -62,17 +62,17 @@ public final class Controller implements LoaderManager.LoaderCallbacks<Cursor> {
      * @param channel
      * @return id of inserted channel.
      */
-    public int insertChannel(RSSChannel channel) {
+    public long insertChannel(RSSChannel channel) {
         ContentValues cv = new ContentValues();
         cv.put(RSSContentProvider.CHANNEL_TITLE, channel.getTitle());
         cv.put(RSSContentProvider.CHANNEL_DESCRIPTION, channel.getDescription());
         cv.put(RSSContentProvider.CHANNEL_LINK, channel.getLink());
 
         Uri newUri = mContentResolver.insert(RSSContentProvider.URI_CHANNELS, cv);
-        return Integer.parseInt(newUri.getLastPathSegment());
+        return Long.parseLong(newUri.getLastPathSegment());
     }
 
-    public void insertChannelItems(int channelId, ArrayList<RSSItem> items) {
+    public void insertChannelItems(long channelId, ArrayList<RSSItem> items) {
         ContentValues cv = new ContentValues();
         RSSItem item;
         for (int i = 0; i < items.size(); i++) {
@@ -83,6 +83,10 @@ public final class Controller implements LoaderManager.LoaderCallbacks<Cursor> {
             cv.put(RSSContentProvider.ITEM_LINK, item.getLink());
             mContentResolver.insert(RSSContentProvider.URI_ITEMS, cv);
         }
+    }
+
+    public void deleteChannel(long channelId) {
+        // TODO
     }
 
     @Override
@@ -98,9 +102,9 @@ public final class Controller implements LoaderManager.LoaderCallbacks<Cursor> {
                             "channel identifier in args.");
                 }
 
-                int channelId = args.getInt(Constants.KEY_CHANNEL_ID);
+                long channelId = args.getLong(Constants.KEY_CHANNEL_ID);
                 String selection = RSSContentProvider.ITEM_CHANNEL_ID + "=?";
-                String[] selectionArgs = new String[]{Integer.toString(channelId)};
+                String[] selectionArgs = new String[]{Long.toString(channelId)};
                 return new CursorLoader(mMainActivity, RSSContentProvider.URI_ITEMS,
                         null, selection, selectionArgs, null);
             }

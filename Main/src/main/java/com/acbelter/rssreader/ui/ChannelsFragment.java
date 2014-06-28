@@ -5,20 +5,24 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ListView;
 import com.acbelter.rssreader.R;
 import com.acbelter.rssreader.storage.RSSContentProvider;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ChannelsFragment extends ListFragment {
     private SimpleCursorAdapter mAdapter;
     private MainActivity mMainActivity;
+    private Set<Long> mSelectedIds;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSelectedIds = new HashSet<Long>();
         setRetainInstance(true);
     }
 
@@ -38,6 +42,45 @@ public class ChannelsFragment extends ListFragment {
                     from, to, 0);
         }
         setListAdapter(mAdapter);
+
+        getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        getListView().setMultiChoiceModeListener(new MultiChoiceModeListener() {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id,
+                                                  boolean checked) {
+                if (checked) {
+                    mSelectedIds.add(id);
+                } else {
+                    mSelectedIds.remove(id);
+                }
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                mode.getMenuInflater().inflate(R.menu.menu_context, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                if (item.getItemId() == R.id.delete_item) {
+                    mode.finish();
+                    mMainActivity.deleteChannels(mSelectedIds);
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                mSelectedIds.clear();
+            }
+        });
     }
 
     public SimpleCursorAdapter getAdapter() {
@@ -51,10 +94,10 @@ public class ChannelsFragment extends ListFragment {
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
+    public void onListItemClick(ListView listView, View view, int position, long id) {
+        super.onListItemClick(listView, view, position, id);
         Cursor c = (Cursor) mAdapter.getItem(position);
-        int channelId = c.getInt(c.getColumnIndex(RSSContentProvider.CHANNEL_ID));
+        long channelId = c.getLong(c.getColumnIndex(RSSContentProvider.CHANNEL_ID));
         mMainActivity.showChannelItems(channelId);
     }
 }

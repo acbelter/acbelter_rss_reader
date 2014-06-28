@@ -52,8 +52,8 @@ public class ChannelItemsFragment extends ListFragment {
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
+    public void onListItemClick(ListView listView, View view, int position, long id) {
+        super.onListItemClick(listView, view, position, id);
         Cursor c = (Cursor) mAdapter.getItem(position);
         RSSItem item = new RSSItem(c);
         mMainActivity.showItem(item);

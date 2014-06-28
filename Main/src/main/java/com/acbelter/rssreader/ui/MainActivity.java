@@ -11,7 +11,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,13 +26,11 @@ import com.acbelter.rssreader.network.GetRSSDataCommand;
 import com.acbelter.rssreader.network.SimpleNetworkServiceHelper;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 public class MainActivity extends ActionBarActivity implements NetworkServiceCallbackListener,
         ControllerUICallback {
     private FragmentManager mFragmentManager;
-    private ActionMode mActionMode;
-    private boolean mIsActionMode;
-    private ActionMode.Callback mActionModeCallback;
 
     private SimpleNetworkServiceHelper mServiceHelper;
     private int mRequestId = -1;
@@ -85,37 +82,6 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
                 mItemFragment = new ItemFragment();
             }
         }
-
-        mActionModeCallback = new ActionMode.Callback() {
-            @Override
-            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                mode.getMenuInflater().inflate(R.menu.menu_context, menu);
-                mIsActionMode = true;
-                return true;
-            }
-
-            @Override
-            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                return false;
-            }
-
-            @Override
-            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                if (item.getItemId() == R.id.delete_items) {
-                    // TODO
-                    //deleteSelectedItems();
-                }
-                return false;
-            }
-
-            @Override
-            public void onDestroyActionMode(ActionMode mode) {
-                // TODO
-                //clearSelection();
-                mIsActionMode = false;
-                mActionMode = null;
-            }
-        };
     }
 
     @Override
@@ -124,7 +90,14 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         outState.putInt(Constants.KEY_REQUEST_ID, mRequestId);
     }
 
-    public void showChannelItems(int channelId) {
+    public void deleteChannels(Set<Long> channelIds) {
+        for (Long id :channelIds) {
+            mController.deleteChannel(id);
+        }
+        channelIds.clear();
+    }
+
+    public void showChannelItems(long channelId) {
         mController.loadChannelItems(channelId);
         showChannelItemsFragment();
     }
@@ -132,14 +105,6 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
     public void showItem(RSSItem item) {
         mItemFragment.setItem(item);
         showItemFragment();
-    }
-
-    private void finishActionMode() {
-        if (mIsActionMode) {
-            mActionMode.finish();
-            mActionMode = null;
-            mIsActionMode = false;
-        }
     }
 
     private void showChannelsFragment() {
@@ -354,7 +319,7 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
                 RSSChannel channel = data.getParcelable(Constants.KEY_RSS_CHANNEL);
                 ArrayList<RSSItem> items = data.getParcelableArrayList(Constants.KEY_RSS_ITEMS);
 
-                int channelId = mController.insertChannel(channel);
+                long channelId = mController.insertChannel(channel);
                 mController.insertChannelItems(channelId, items);
             } else if (resultCode == GetRSSDataCommand.RESPONSE_PROGRESS) {
                 // TODO For the future
