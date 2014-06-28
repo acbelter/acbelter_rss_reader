@@ -69,8 +69,8 @@ public class ChannelsFragment extends ListFragment {
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 if (item.getItemId() == R.id.delete_item) {
-                    mode.finish();
                     mMainActivity.deleteChannels(mSelectedIds);
+                    mode.finish();
                     return true;
                 }
                 return false;
@@ -78,7 +78,6 @@ public class ChannelsFragment extends ListFragment {
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
-                mSelectedIds.clear();
             }
         });
     }

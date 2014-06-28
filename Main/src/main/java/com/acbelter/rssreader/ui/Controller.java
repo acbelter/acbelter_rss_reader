@@ -86,7 +86,10 @@ public final class Controller implements LoaderManager.LoaderCallbacks<Cursor> {
     }
 
     public void deleteChannel(long channelId) {
-        // TODO
+        mContentResolver.delete(RSSContentProvider.URI_CHANNELS, RSSContentProvider.CHANNEL_ID +
+                "=?", new String[]{Long.toString(channelId)});
+        mContentResolver.delete(RSSContentProvider.URI_ITEMS, RSSContentProvider.ITEM_CHANNEL_ID +
+                "=?", new String[]{Long.toString(channelId)});
     }
 
     @Override

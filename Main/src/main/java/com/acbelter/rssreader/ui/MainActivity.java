@@ -91,7 +91,7 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
     }
 
     public void deleteChannels(Set<Long> channelIds) {
-        for (Long id :channelIds) {
+        for (Long id : channelIds) {
             mController.deleteChannel(id);
         }
         channelIds.clear();
