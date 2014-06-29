@@ -8,24 +8,20 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 
 public class RSSParser extends BaseRSSParser {
     private static final String NAMESPACE = null;
 
     @Override
-    public Pair<RSSChannel, ArrayList<RSSItem>> parse(InputStream in)
+    public Pair<RSSChannel, ArrayList<RSSItem>> parse(String xml)
             throws XmlPullParserException, IOException {
-        try {
-            XmlPullParser parser = Xml.newPullParser();
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(in, null);
-            parser.nextTag();
-            return readRSS(parser);
-        } finally {
-            in.close();
-        }
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+        parser.setInput(new StringReader(xml));
+        parser.nextTag();
+        return readRSS(parser);
     }
 
     private Pair<RSSChannel, ArrayList<RSSItem>> readRSS(XmlPullParser parser)

@@ -17,13 +17,12 @@
       tools:text="Channel item"/>
 
     <TextView
-      android:id="@+id/link"
+      android:id="@+id/description"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginTop="2dp"
       android:layout_marginBottom="4dp"
       android:singleLine="true"
       android:ellipsize="end"
-      tools:text="http://www.example.com"
-      android:textStyle="italic"/>
+      tools:text="Description"/>
 </LinearLayout>
