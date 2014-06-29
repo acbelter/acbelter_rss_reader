@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -28,18 +27,13 @@ import com.acbelter.rssreader.network.SimpleNetworkServiceHelper;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class MainActivity extends ActionBarActivity implements NetworkServiceCallbackListener,
-        ControllerUICallback {
+public class MainActivity extends ActionBarActivity implements NetworkServiceCallbackListener {
     private FragmentManager mFragmentManager;
 
     private SimpleNetworkServiceHelper mServiceHelper;
     private int mRequestId = -1;
 
     private Controller mController;
-
-    private ChannelsFragment mChannelsFragment;
-    private ChannelItemsFragment mChannelItemsFragment;
-    private ItemFragment mItemFragment;
 
     private static final String TAG_CF = ChannelsFragment.class.getSimpleName();
     private static final String TAG_CIF = ChannelItemsFragment.class.getSimpleName();
@@ -58,29 +52,9 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         mController = new Controller(this);
 
         if (savedInstanceState == null) {
-            mChannelsFragment = new ChannelsFragment();
-            mChannelItemsFragment = new ChannelItemsFragment();
-            mItemFragment = new ItemFragment();
-            mController.loadChannels();
             showChannelsFragment();
         } else {
             mRequestId = savedInstanceState.getInt(Constants.KEY_REQUEST_ID);
-            mChannelsFragment = (ChannelsFragment) mFragmentManager
-                    .findFragmentByTag(TAG_CF);
-            if (mChannelsFragment == null) {
-                mChannelsFragment = new ChannelsFragment();
-            }
-
-            mChannelItemsFragment = (ChannelItemsFragment) mFragmentManager
-                    .findFragmentByTag(TAG_CIF);
-            if (mChannelItemsFragment == null) {
-                mChannelItemsFragment = new ChannelItemsFragment();
-            }
-
-            mItemFragment = (ItemFragment) mFragmentManager.findFragmentByTag(TAG_IF);
-            if (mItemFragment == null) {
-                mItemFragment = new ItemFragment();
-            }
         }
     }
 
@@ -97,52 +71,24 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         channelIds.clear();
     }
 
-    public void showChannelItems(long channelId) {
-        mController.loadChannelItems(channelId);
-        showChannelItemsFragment();
-    }
-
-    public void showItem(RSSItem item) {
-        mItemFragment.setItem(item);
-        showItemFragment();
-    }
-
     private void showChannelsFragment() {
         FragmentTransaction ft = mFragmentManager.beginTransaction();
-        ft.replace(R.id.content_frame, mChannelsFragment, TAG_CF);
+        ft.replace(R.id.content_frame, new ChannelsFragment(), TAG_CF);
         ft.commit();
     }
 
-    private void showChannelItemsFragment() {
+    public void showChannelItemsFragment(final long channelId) {
         FragmentTransaction ft = mFragmentManager.beginTransaction();
-        ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        ft.replace(R.id.content_frame, mChannelItemsFragment, TAG_CIF);
+        ft.replace(R.id.content_frame, ChannelItemsFragment.newInstance(channelId), TAG_CIF);
         ft.addToBackStack(null);
         ft.commit();
     }
 
-    private void showItemFragment() {
+    public void showItemFragment(final RSSItem item) {
         FragmentTransaction ft = mFragmentManager.beginTransaction();
-        ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        ft.replace(R.id.content_frame, mItemFragment, TAG_IF);
+        ft.replace(R.id.content_frame, ItemFragment.newInstance(item), TAG_IF);
         ft.addToBackStack(null);
         ft.commit();
-    }
-
-    @Override
-    public void setChannelsFragmentCursor(Cursor c) {
-        if (mChannelsFragment != null) {
-            mChannelsFragment.getAdapter().swapCursor(c);
-        }
-    }
-
-    @Override
-    public void setChannelItemsFragmentCursor(Cursor c) {
-        if (mChannelItemsFragment != null) {
-            mChannelItemsFragment.getAdapter().swapCursor(c);
-        }
     }
 
     public void showDuplicateChannelToast() {

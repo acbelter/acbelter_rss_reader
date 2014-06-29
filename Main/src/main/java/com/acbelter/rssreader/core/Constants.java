@@ -12,4 +12,7 @@ public class Constants {
     public static final String KEY_RSS_ITEMS = "com.acbelter.rssreader.KEY_RSS_ITEMS";
     public static final String KEY_CHANNEL_ID = "com.acbelter.rssreader.KEY_CHANNEL_ID";
     public static final String KEY_REQUEST_ID = "com.acbelter.rssreader.KEY_REQUEST_ID";
+
+    public static final int CHANNELS_LOADER_ID = 1;
+    public static final int CHANNEL_ITEMS_LOADER_ID = 2;
 }

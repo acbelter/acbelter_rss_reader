@@ -4,17 +4,22 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.*;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ListView;
 import com.acbelter.rssreader.R;
+import com.acbelter.rssreader.core.Constants;
 import com.acbelter.rssreader.storage.RSSContentProvider;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class ChannelsFragment extends ListFragment {
+public class ChannelsFragment extends ListFragment implements
+        LoaderManager.LoaderCallbacks<Cursor> {
     private SimpleCursorAdapter mAdapter;
     private MainActivity mMainActivity;
     private Set<Long> mSelectedIds;
@@ -37,10 +42,8 @@ public class ChannelsFragment extends ListFragment {
         super.onActivityCreated(savedInstanceState);
         String[] from = {RSSContentProvider.CHANNEL_TITLE, RSSContentProvider.CHANNEL_LINK};
         int[] to = {R.id.title, R.id.link};
-        if (mAdapter == null) {
-            mAdapter = new SimpleCursorAdapter(mMainActivity, R.layout.item_rss_channel, null,
-                    from, to, 0);
-        }
+        mAdapter = new SimpleCursorAdapter(mMainActivity, R.layout.item_rss_channel, null,
+                from, to, 0);
         setListAdapter(mAdapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -80,10 +83,8 @@ public class ChannelsFragment extends ListFragment {
             public void onDestroyActionMode(ActionMode mode) {
             }
         });
-    }
 
-    public SimpleCursorAdapter getAdapter() {
-        return mAdapter;
+        getLoaderManager().initLoader(Constants.CHANNELS_LOADER_ID, null, this);
     }
 
     @Override
@@ -97,6 +98,29 @@ public class ChannelsFragment extends ListFragment {
         super.onListItemClick(listView, view, position, id);
         Cursor c = (Cursor) mAdapter.getItem(position);
         long channelId = c.getLong(c.getColumnIndex(RSSContentProvider.CHANNEL_ID));
-        mMainActivity.showChannelItems(channelId);
+        mMainActivity.showChannelItemsFragment(channelId);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if (id == Constants.CHANNELS_LOADER_ID) {
+            return new CursorLoader(mMainActivity, RSSContentProvider.URI_CHANNELS,
+                    null, null, null, null);
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (loader.getId() == Constants.CHANNELS_LOADER_ID) {
+            mAdapter.swapCursor(data);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        if (loader.getId() == Constants.CHANNELS_LOADER_ID) {
+            mAdapter.swapCursor(null);
+        }
     }
 }
