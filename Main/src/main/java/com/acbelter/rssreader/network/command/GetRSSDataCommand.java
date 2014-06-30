@@ -12,6 +12,7 @@ import com.acbelter.rssreader.core.Constants;
 import com.acbelter.rssreader.core.RSSChannel;
 import com.acbelter.rssreader.core.RSSItem;
 import com.acbelter.rssreader.network.parser.RSSParser;
+import com.acbelter.rssreader.network.parser.SimpleRSSParser;
 import com.acbelter.rssreader.network.parser.Utils;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -23,14 +24,14 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class GetRSSDataCommand extends BaseNetworkServiceCommand {
-    private String mLink;
+    private String mRSSLink;
 
-    public GetRSSDataCommand(String link) {
-        mLink = link;
+    public GetRSSDataCommand(String RSSLink) {
+        mRSSLink = RSSLink;
     }
 
     private GetRSSDataCommand(Parcel in) {
-        mLink = in.readString();
+        mRSSLink = in.readString();
     }
 
     @Override
@@ -38,7 +39,7 @@ public class GetRSSDataCommand extends BaseNetworkServiceCommand {
         HttpURLConnection conn = null;
         Bundle data = new Bundle();
         try {
-            URL url = new URL(mLink);
+            URL url = new URL(mRSSLink);
             conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(15000);
@@ -49,10 +50,13 @@ public class GetRSSDataCommand extends BaseNetworkServiceCommand {
                 return;
             }
 
-            RSSParser parser = new RSSParser();
+            RSSParser parser = new SimpleRSSParser();
             String xml = Utils.readXmlToString(conn.getInputStream());
             Pair<RSSChannel, ArrayList<RSSItem>> pair = parser.parse(xml);
             if (pair != null) {
+                if (pair.first != null) {
+                    pair.first.setRSSLink(mRSSLink);
+                }
                 data.putParcelable(Constants.KEY_RSS_CHANNEL, pair.first);
                 data.putParcelableArrayList(Constants.KEY_RSS_ITEMS, pair.second);
                 notifySuccess(data);
@@ -96,6 +100,6 @@ public class GetRSSDataCommand extends BaseNetworkServiceCommand {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeString(mLink);
+        out.writeString(mRSSLink);
     }
 }

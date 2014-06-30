@@ -17,7 +17,7 @@ public final class Controller {
         mContentResolver = mainActivity.getContentResolver();
     }
 
-    public ArrayList<String> getChannelsLinks() {
+    public ArrayList<String> getChannelsRSSLinks() {
         Cursor c = mContentResolver
                 .query(RSSContentProvider.URI_CHANNELS, null, null, null, null);
         if (c == null || c.isClosed()) {
@@ -26,7 +26,7 @@ public final class Controller {
 
         ArrayList<String> result = new ArrayList<String>(c.getCount());
         while (c.moveToNext()) {
-            result.add(c.getString(c.getColumnIndex(RSSContentProvider.CHANNEL_LINK)));
+            result.add(c.getString(c.getColumnIndex(RSSContentProvider.CHANNEL_RSS_LINK)));
         }
         return result;
     }
@@ -36,9 +36,9 @@ public final class Controller {
         mContentResolver.delete(RSSContentProvider.URI_ITEMS, null, null);
     }
 
-    public boolean isChannelExists(String link) {
-        String selection = RSSContentProvider.CHANNEL_LINK + "=?";
-        String[] selectionArgs = new String[]{link};
+    public boolean isChannelExists(String RSSLink) {
+        String selection = RSSContentProvider.CHANNEL_RSS_LINK + "=?";
+        String[] selectionArgs = new String[]{RSSLink};
         Cursor c = mContentResolver
                 .query(RSSContentProvider.URI_CHANNELS, null, selection, selectionArgs, null);
         if (c != null && !c.isClosed() && c.getCount() > 0) {
@@ -54,6 +54,7 @@ public final class Controller {
      */
     public long insertChannel(RSSChannel channel) {
         ContentValues cv = new ContentValues();
+        cv.put(RSSContentProvider.CHANNEL_RSS_LINK, channel.getRSSLink());
         cv.put(RSSContentProvider.CHANNEL_TITLE, channel.getTitle());
         cv.put(RSSContentProvider.CHANNEL_DESCRIPTION, channel.getDescription());
         cv.put(RSSContentProvider.CHANNEL_LINK, channel.getLink());

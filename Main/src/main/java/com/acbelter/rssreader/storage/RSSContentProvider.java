@@ -16,6 +16,7 @@ public class RSSContentProvider extends ContentProvider {
 
     // Fields of channels table
     public static final String CHANNEL_ID = "_id";
+    public static final String CHANNEL_RSS_LINK = "rss_link";
     public static final String CHANNEL_TITLE = "title";
     public static final String CHANNEL_DESCRIPTION = "description";
     public static final String CHANNEL_LINK = "link";
@@ -29,6 +30,7 @@ public class RSSContentProvider extends ContentProvider {
 
     static final String CREATE_TABLE_CHANNELS = "create table " + TABLE_CHANNELS + "("
             + CHANNEL_ID + " integer primary key autoincrement, "
+            + CHANNEL_RSS_LINK + " text not null, "
             + CHANNEL_TITLE + " text not null, "
             + CHANNEL_DESCRIPTION + " text not null, "
             + CHANNEL_LINK + " text not null);";

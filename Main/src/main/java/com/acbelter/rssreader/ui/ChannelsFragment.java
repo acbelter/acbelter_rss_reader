@@ -40,8 +40,8 @@ public class ChannelsFragment extends ListFragment implements
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        String[] from = {RSSContentProvider.CHANNEL_TITLE, RSSContentProvider.CHANNEL_LINK};
-        int[] to = {R.id.title, R.id.link};
+        String[] from = {RSSContentProvider.CHANNEL_TITLE, RSSContentProvider.CHANNEL_RSS_LINK};
+        int[] to = {R.id.title, R.id.rss_link};
         mAdapter = new SimpleCursorAdapter(mMainActivity, R.layout.item_rss_channel, null,
                 from, to, 0);
         setListAdapter(mAdapter);

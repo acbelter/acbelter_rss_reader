@@ -121,7 +121,7 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
                 if (loading == null) {
                     LoadingDialogFragment newLoading = new LoadingDialogFragment();
                     newLoading.show(mFragmentManager, LoadingDialogFragment.class.getSimpleName());
-                    mUpdateRequestId = mServiceHelper.updateRSSData(mController.getChannelsLinks());
+                    mUpdateRequestId = mServiceHelper.updateRSSData(mController.getChannelsRSSLinks());
                 }
                 return true;
             }
@@ -200,15 +200,15 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         }
     }
 
-    private void addNewChannel(String link) {
-        if (mController.isChannelExists(link)) {
+    private void addNewChannel(String RSSLink) {
+        if (mController.isChannelExists(RSSLink)) {
             showDuplicateChannelToast();
             return;
         }
 
         LoadingDialogFragment loading = new LoadingDialogFragment();
         loading.show(mFragmentManager, LoadingDialogFragment.class.getSimpleName());
-        mGetRequestId = mServiceHelper.getRSSData(link);
+        mGetRequestId = mServiceHelper.getRSSData(RSSLink);
     }
 
     private void showClearDataDialog() {
@@ -241,13 +241,13 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setView(dialogContent);
 
-        final EditText linkEditText = (EditText) dialogContent.findViewById(R.id.link_edit_text);
+        final EditText RSSLinkEditText = (EditText) dialogContent.findViewById(R.id.rss_link_edit_text);
         dialogBuilder
             .setPositiveButton(getString(R.string.ok),
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            addNewChannel(linkEditText.getText().toString());
+                            addNewChannel(RSSLinkEditText.getText().toString());
                             dialog.dismiss();
                         }
                     })

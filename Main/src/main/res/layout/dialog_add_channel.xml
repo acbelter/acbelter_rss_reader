@@ -12,7 +12,7 @@
       android:text="@string/rss_link_hint"/>
 
     <EditText
-      android:id="@+id/link_edit_text"
+      android:id="@+id/rss_link_edit_text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:text="http://news.yandex.ru/computers.rss"
