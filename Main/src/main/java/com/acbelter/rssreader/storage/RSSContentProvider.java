@@ -122,24 +122,24 @@ public class RSSContentProvider extends ContentProvider {
             case CODE_CHANNEL_ID: {
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
-                    selection = CHANNEL_ID + " = " + id;
+                    selection = CHANNEL_ID + "=" + id;
                 } else {
-                    selection = selection + " AND " + CHANNEL_ID + " = " + id;
+                    selection = selection + " AND " + CHANNEL_ID + "=" + id;
                 }
                 break;
             }
             case CODE_ITEMS: {
                 if (TextUtils.isEmpty(sortOrder)) {
-                    sortOrder = ITEM_ID + " DESC";
+                    sortOrder = ITEM_ID + " ASC";
                 }
                 break;
             }
             case CODE_ITEM_ID: {
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
-                    selection = ITEM_ID + " = " + id;
+                    selection = ITEM_ID + "=" + id;
                 } else {
-                    selection = selection + " AND " + ITEM_ID + " = " + id;
+                    selection = selection + " AND " + ITEM_ID + "=" + id;
                 }
                 break;
             }
@@ -195,9 +195,9 @@ public class RSSContentProvider extends ContentProvider {
             case CODE_CHANNEL_ID: {
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
-                    selection = CHANNEL_ID + " = " + id;
+                    selection = CHANNEL_ID + "=" + id;
                 } else {
-                    selection = selection + " AND " + CHANNEL_ID + " = " + id;
+                    selection = selection + " AND " + CHANNEL_ID + "=" + id;
                 }
                 break;
             }
@@ -207,9 +207,9 @@ public class RSSContentProvider extends ContentProvider {
             case CODE_ITEM_ID: {
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
-                    selection = ITEM_ID + " = " + id;
+                    selection = ITEM_ID + "=" + id;
                 } else {
-                    selection = selection + " AND " + ITEM_ID + " = " + id;
+                    selection = selection + " AND " + ITEM_ID + "=" + id;
                 }
                 break;
             }
@@ -240,9 +240,9 @@ public class RSSContentProvider extends ContentProvider {
             case CODE_CHANNEL_ID: {
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
-                    selection = CHANNEL_ID + " = " + id;
+                    selection = CHANNEL_ID + "=" + id;
                 } else {
-                    selection = selection + " AND " + CHANNEL_ID + " = " + id;
+                    selection = selection + " AND " + CHANNEL_ID + "=" + id;
                 }
                 break;
             }
@@ -252,9 +252,9 @@ public class RSSContentProvider extends ContentProvider {
             case CODE_ITEM_ID: {
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
-                    selection = ITEM_ID + " = " + id;
+                    selection = ITEM_ID + "=" + id;
                 } else {
-                    selection = selection + " AND " + ITEM_ID + " = " + id;
+                    selection = selection + " AND " + ITEM_ID + "=" + id;
                 }
                 break;
             }

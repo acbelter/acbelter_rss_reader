@@ -24,14 +24,14 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class GetRSSDataCommand extends BaseNetworkServiceCommand {
-    private String mRSSLink;
+    private String mRssLink;
 
-    public GetRSSDataCommand(String RSSLink) {
-        mRSSLink = RSSLink;
+    public GetRSSDataCommand(String rssLink) {
+        mRssLink = rssLink;
     }
 
     private GetRSSDataCommand(Parcel in) {
-        mRSSLink = in.readString();
+        mRssLink = in.readString();
     }
 
     @Override
@@ -39,7 +39,7 @@ public class GetRSSDataCommand extends BaseNetworkServiceCommand {
         HttpURLConnection conn = null;
         Bundle data = new Bundle();
         try {
-            URL url = new URL(mRSSLink);
+            URL url = new URL(mRssLink);
             conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(15000);
@@ -55,7 +55,7 @@ public class GetRSSDataCommand extends BaseNetworkServiceCommand {
             Pair<RSSChannel, ArrayList<RSSItem>> pair = parser.parse(xml);
             if (pair != null) {
                 if (pair.first != null) {
-                    pair.first.setRSSLink(mRSSLink);
+                    pair.first.setRssLink(mRssLink);
                 }
                 data.putParcelable(Constants.KEY_RSS_CHANNEL, pair.first);
                 data.putParcelableArrayList(Constants.KEY_RSS_ITEMS, pair.second);
@@ -100,6 +100,6 @@ public class GetRSSDataCommand extends BaseNetworkServiceCommand {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeString(mRSSLink);
+        out.writeString(mRssLink);
     }
 }

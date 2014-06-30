@@ -15,7 +15,7 @@
       android:id="@+id/rss_link_edit_text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:text="http://news.yandex.ru/computers.rss"
+      android:text="@string/url_prefix"
       android:singleLine="true">
         <requestFocus/>
     </EditText>

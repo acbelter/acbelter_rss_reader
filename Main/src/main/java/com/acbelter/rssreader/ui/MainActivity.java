@@ -70,7 +70,7 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
 
     public void deleteChannels(Set<Long> channelIds) {
         for (Long id : channelIds) {
-            mController.deleteChannel(id);
+            mController.deleteChannelWithItems(id);
         }
         channelIds.clear();
     }
@@ -309,7 +309,10 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         } else if (mServiceHelper.checkCommandClass(requestIntent, UpdateRSSDataCommand.class)) {
             mUpdateRequestId = -1;
             if (resultCode == UpdateRSSDataCommand.RESPONSE_SUCCESS) {
-                // TODO Update channel
+                RSSChannel channel = data.getParcelable(Constants.KEY_RSS_CHANNEL);
+                ArrayList<RSSItem> items = data.getParcelableArrayList(Constants.KEY_RSS_ITEMS);
+
+                mController.updateChannel(channel, items);
                 if (data.containsKey(Constants.KEY_CHANNELS_UPDATED)) {
                     dismissLoadingDialog();
                     showChannelsUpdatedToast();

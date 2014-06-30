@@ -4,31 +4,31 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class RSSChannel implements Parcelable {
-    protected String mRSSLink;
+    protected String mRssLink;
     protected String mTitle;
     protected String mDescription;
     protected String mLink;
 
     public RSSChannel() {
-        mRSSLink = "";
+        mRssLink = "";
         mTitle = "";
         mDescription = "";
         mLink = "";
     }
 
     private RSSChannel(Parcel in) {
-        mRSSLink = in.readString();
+        mRssLink = in.readString();
         mTitle = in.readString();
         mDescription = in.readString();
         mLink = in.readString();
     }
 
-    public String getRSSLink() {
-        return mRSSLink;
+    public String getRssLink() {
+        return mRssLink;
     }
 
-    public void setRSSLink(String RSSLink) {
-        mRSSLink = RSSLink;
+    public void setRssLink(String rssLink) {
+        mRssLink = rssLink;
     }
 
     public String getTitle() {
@@ -75,7 +75,7 @@ public class RSSChannel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeString(mRSSLink);
+        out.writeString(mRssLink);
         out.writeString(mTitle);
         out.writeString(mDescription);
         out.writeString(mLink);
@@ -83,7 +83,7 @@ public class RSSChannel implements Parcelable {
     @Override
     public String toString() {
         return "RSSChannel{" +
-                "mRSSLink='" + mRSSLink + '\'' +
+                "mRssLink='" + mRssLink + '\'' +
                 ", mTitle='" + mTitle + '\'' +
                 '}';
     }

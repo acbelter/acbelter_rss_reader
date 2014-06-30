@@ -24,16 +24,16 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class UpdateRSSDataCommand extends BaseNetworkServiceCommand {
-    private ArrayList<String> mChannelsRSSLinks;
+    private ArrayList<String> mChannelsRssLinks;
     private int mUpdateCounter;
 
-    public UpdateRSSDataCommand(ArrayList<String> channelsRSSLinks) {
-        mChannelsRSSLinks = channelsRSSLinks;
+    public UpdateRSSDataCommand(ArrayList<String> channelsRssLinks) {
+        mChannelsRssLinks = channelsRssLinks;
     }
 
     private UpdateRSSDataCommand(Parcel in) {
-        mChannelsRSSLinks = new ArrayList<String>();
-        in.readStringList(mChannelsRSSLinks);
+        mChannelsRssLinks = new ArrayList<String>();
+        in.readStringList(mChannelsRssLinks);
         mUpdateCounter = in.readInt();
     }
 
@@ -42,10 +42,10 @@ public class UpdateRSSDataCommand extends BaseNetworkServiceCommand {
         HttpURLConnection conn = null;
         Bundle data = new Bundle();
 
-        for (int i = 0; i < mChannelsRSSLinks.size(); i++) {
+        for (int i = 0; i < mChannelsRssLinks.size(); i++) {
             data.clear();
             try {
-                URL url = new URL(mChannelsRSSLinks.get(i));
+                URL url = new URL(mChannelsRssLinks.get(i));
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setReadTimeout(10000);
                 conn.setConnectTimeout(15000);
@@ -61,19 +61,19 @@ public class UpdateRSSDataCommand extends BaseNetworkServiceCommand {
                 Pair<RSSChannel, ArrayList<RSSItem>> pair = parser.parse(xml);
                 if (pair != null) {
                     if (pair.first != null) {
-                        pair.first.setRSSLink(mChannelsRSSLinks.get(i));
+                        pair.first.setRssLink(mChannelsRssLinks.get(i));
                     }
                     data.putParcelable(Constants.KEY_RSS_CHANNEL, pair.first);
                     data.putParcelableArrayList(Constants.KEY_RSS_ITEMS, pair.second);
 
-                    int progress = (int)(100 * ((float)(i + 1) / mChannelsRSSLinks.size()));
+                    int progress = (int)(100 * ((float)(i + 1) / mChannelsRssLinks.size()));
                     if (progress > 100) {
                         progress = 100;
                     }
                     sendProgress(progress);
 
                     // Last channel has been updated
-                    if (i == mChannelsRSSLinks.size() - 1) {
+                    if (i == mChannelsRssLinks.size() - 1) {
                         data.putBoolean(Constants.KEY_CHANNELS_UPDATED, true);
                     }
                     notifySuccess(data);
@@ -119,7 +119,7 @@ public class UpdateRSSDataCommand extends BaseNetworkServiceCommand {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeStringList(mChannelsRSSLinks);
+        out.writeStringList(mChannelsRssLinks);
         out.writeInt(mUpdateCounter);
     }
 }

@@ -17,17 +17,17 @@ public class SimpleNetworkServiceHelper implements NetworkServiceHelper {
         mBaseNetworkServiceHelper = baseNetworkServiceHelper;
     }
 
-    public int getRSSData(String channelRSSLink) {
+    public int getRSSData(String channelRssLink) {
         final int requestId = mBaseNetworkServiceHelper.createCommandId();
         Intent requestIntent = mBaseNetworkServiceHelper
-                .buildRequestIntent(new GetRSSDataCommand(channelRSSLink), requestId);
+                .buildRequestIntent(new GetRSSDataCommand(channelRssLink), requestId);
         return mBaseNetworkServiceHelper.executeRequest(requestId, requestIntent);
     }
 
-    public int updateRSSData(ArrayList<String> channelsRSSLinks) {
+    public int updateRSSData(ArrayList<String> channelsRssLinks) {
         final int requestId = mBaseNetworkServiceHelper.createCommandId();
         Intent requestIntent = mBaseNetworkServiceHelper
-                .buildRequestIntent(new UpdateRSSDataCommand(channelsRSSLinks), requestId);
+                .buildRequestIntent(new UpdateRSSDataCommand(channelsRssLinks), requestId);
         return mBaseNetworkServiceHelper.executeRequest(requestId, requestIntent);
     }
 
