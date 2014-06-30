@@ -5,6 +5,10 @@ import com.acbelter.nslib.BaseNetworkServiceHelper;
 import com.acbelter.nslib.NetworkServiceCallbackListener;
 import com.acbelter.nslib.NetworkServiceHelper;
 import com.acbelter.nslib.command.BaseNetworkServiceCommand;
+import com.acbelter.rssreader.network.command.GetRSSDataCommand;
+import com.acbelter.rssreader.network.command.UpdateRSSDataCommand;
+
+import java.util.ArrayList;
 
 public class SimpleNetworkServiceHelper implements NetworkServiceHelper {
     private BaseNetworkServiceHelper mBaseNetworkServiceHelper;
@@ -13,10 +17,17 @@ public class SimpleNetworkServiceHelper implements NetworkServiceHelper {
         mBaseNetworkServiceHelper = baseNetworkServiceHelper;
     }
 
-    public int getRSSData(String link) {
+    public int getRSSData(String channelLink) {
         final int requestId = mBaseNetworkServiceHelper.createCommandId();
         Intent requestIntent = mBaseNetworkServiceHelper
-                .buildRequestIntent(new GetRSSDataCommand(link), requestId);
+                .buildRequestIntent(new GetRSSDataCommand(channelLink), requestId);
+        return mBaseNetworkServiceHelper.executeRequest(requestId, requestIntent);
+    }
+
+    public int updateRSSData(ArrayList<String> channelLinks) {
+        final int requestId = mBaseNetworkServiceHelper.createCommandId();
+        Intent requestIntent = mBaseNetworkServiceHelper
+                .buildRequestIntent(new UpdateRSSDataCommand(channelLinks), requestId);
         return mBaseNetworkServiceHelper.executeRequest(requestId, requestIntent);
     }
 

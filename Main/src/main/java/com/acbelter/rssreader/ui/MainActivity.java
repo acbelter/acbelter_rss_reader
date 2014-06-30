@@ -21,8 +21,9 @@ import com.acbelter.rssreader.R;
 import com.acbelter.rssreader.core.Constants;
 import com.acbelter.rssreader.core.RSSChannel;
 import com.acbelter.rssreader.core.RSSItem;
-import com.acbelter.rssreader.network.GetRSSDataCommand;
 import com.acbelter.rssreader.network.SimpleNetworkServiceHelper;
+import com.acbelter.rssreader.network.command.GetRSSDataCommand;
+import com.acbelter.rssreader.network.command.UpdateRSSDataCommand;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -31,7 +32,8 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
     private FragmentManager mFragmentManager;
 
     private SimpleNetworkServiceHelper mServiceHelper;
-    private int mRequestId = -1;
+    private int mGetRequestId = -1;
+    private int mUpdateRequestId = -1;
 
     private Controller mController;
 
@@ -54,14 +56,16 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         if (savedInstanceState == null) {
             showChannelsFragment();
         } else {
-            mRequestId = savedInstanceState.getInt(Constants.KEY_REQUEST_ID);
+            mGetRequestId = savedInstanceState.getInt(Constants.KEY_GET_REQUEST_ID);
+            mUpdateRequestId = savedInstanceState.getInt(Constants.KEY_UPDATE_REQUEST_ID);
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(Constants.KEY_REQUEST_ID, mRequestId);
+        outState.putInt(Constants.KEY_GET_REQUEST_ID, mGetRequestId);
+        outState.putInt(Constants.KEY_UPDATE_REQUEST_ID, mUpdateRequestId);
     }
 
     public void deleteChannels(Set<Long> channelIds) {
@@ -96,6 +100,11 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
                 Toast.LENGTH_LONG).show();
     }
 
+    private void showChannelsUpdatedToast() {
+        Toast.makeText(getApplicationContext(), getString(R.string.toast_channels_updated),
+                Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -106,7 +115,14 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.update_item: {
-                // TODO Update
+                LoadingDialogFragment loading =
+                        (LoadingDialogFragment) getSupportFragmentManager()
+                                .findFragmentByTag(LoadingDialogFragment.class.getSimpleName());
+                if (loading == null) {
+                    LoadingDialogFragment newLoading = new LoadingDialogFragment();
+                    newLoading.show(mFragmentManager, LoadingDialogFragment.class.getSimpleName());
+                    mUpdateRequestId = mServiceHelper.updateRSSData(mController.getChannelsLinks());
+                }
                 return true;
             }
             case R.id.add_item: {
@@ -127,8 +143,13 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             ProgressDialog progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setMessage(getString(R.string.loading));
+            progressDialog.setMessage(getString(R.string.loading) + "...");
             return progressDialog;
+        }
+
+        public void setProgress(int progress) {
+            ((ProgressDialog) getDialog()).setMessage(
+                    getString(R.string.loading) + " " + progress + "%");
         }
 
         @Override
@@ -137,12 +158,24 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
             ((MainActivity) getActivity()).cancelCommand();
         }
     }
+
+    private void updateLoadingProgress(final int progress) {
+        LoadingDialogFragment loading =
+                (LoadingDialogFragment) getSupportFragmentManager()
+                        .findFragmentByTag(LoadingDialogFragment.class.getSimpleName());
+        if (loading != null) {
+            loading.setProgress(progress);
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         mServiceHelper.addListener(this);
 
-        if (mRequestId != -1 && !mServiceHelper.isPending(mRequestId)) {
+        if (mGetRequestId != -1 && mUpdateRequestId != -1 &&
+                !mServiceHelper.isPending(mGetRequestId) &&
+                !mServiceHelper.isPending(mUpdateRequestId)) {
             dismissLoadingDialog();
         }
     }
@@ -154,7 +187,8 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
     }
 
     public void cancelCommand() {
-        mServiceHelper.cancelRequest(mRequestId);
+        mServiceHelper.cancelRequest(mGetRequestId);
+        mServiceHelper.cancelRequest(mUpdateRequestId);
     }
 
     private void dismissLoadingDialog() {
@@ -174,7 +208,7 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
 
         LoadingDialogFragment loading = new LoadingDialogFragment();
         loading.show(mFragmentManager, LoadingDialogFragment.class.getSimpleName());
-        mRequestId = mServiceHelper.getRSSData(link);
+        mGetRequestId = mServiceHelper.getRSSData(link);
     }
 
     private void showClearDataDialog() {
@@ -259,17 +293,31 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
     public void onServiceCallback(int requestId, Intent requestIntent,
                                   int resultCode, Bundle data) {
         if (mServiceHelper.checkCommandClass(requestIntent, GetRSSDataCommand.class)) {
+            mGetRequestId = -1;
             if (resultCode == GetRSSDataCommand.RESPONSE_SUCCESS) {
-                dismissLoadingDialog();
-
                 RSSChannel channel = data.getParcelable(Constants.KEY_RSS_CHANNEL);
                 ArrayList<RSSItem> items = data.getParcelableArrayList(Constants.KEY_RSS_ITEMS);
 
                 long channelId = mController.insertChannel(channel);
                 mController.insertChannelItems(channelId, items);
-            } else if (resultCode == GetRSSDataCommand.RESPONSE_PROGRESS) {
-                // TODO For the future
+                dismissLoadingDialog();
             } else if (resultCode == GetRSSDataCommand.RESPONSE_FAILURE) {
+                dismissLoadingDialog();
+                int exceptionCode = data.getInt(Constants.KEY_EXCEPTION_CODE);
+                processException(exceptionCode);
+            }
+        } else if (mServiceHelper.checkCommandClass(requestIntent, UpdateRSSDataCommand.class)) {
+            mUpdateRequestId = -1;
+            if (resultCode == UpdateRSSDataCommand.RESPONSE_SUCCESS) {
+                // TODO Update channel
+                if (data.containsKey(Constants.KEY_CHANNELS_UPDATED)) {
+                    dismissLoadingDialog();
+                    showChannelsUpdatedToast();
+                }
+            } else if (resultCode == UpdateRSSDataCommand.RESPONSE_PROGRESS) {
+                int progress = data.getInt(UpdateRSSDataCommand.EXTRA_PROGRESS);
+                updateLoadingProgress(progress);
+            } else if (resultCode == UpdateRSSDataCommand.RESPONSE_FAILURE) {
                 dismissLoadingDialog();
                 int exceptionCode = data.getInt(Constants.KEY_EXCEPTION_CODE);
                 processException(exceptionCode);

@@ -17,6 +17,20 @@ public final class Controller {
         mContentResolver = mainActivity.getContentResolver();
     }
 
+    public ArrayList<String> getChannelsLinks() {
+        Cursor c = mContentResolver
+                .query(RSSContentProvider.URI_CHANNELS, null, null, null, null);
+        if (c == null || c.isClosed()) {
+            return new ArrayList<String>(0);
+        }
+
+        ArrayList<String> result = new ArrayList<String>(c.getCount());
+        while (c.moveToNext()) {
+            result.add(c.getString(c.getColumnIndex(RSSContentProvider.CHANNEL_LINK)));
+        }
+        return result;
+    }
+
     public void clearData() {
         mContentResolver.delete(RSSContentProvider.URI_CHANNELS, null, null);
         mContentResolver.delete(RSSContentProvider.URI_ITEMS, null, null);

@@ -1,4 +1,4 @@
-package com.acbelter.rssreader.network;
+package com.acbelter.rssreader.network.command;
 
 import android.content.Context;
 import android.content.Intent;
@@ -35,35 +35,6 @@ public class GetRSSDataCommand extends BaseNetworkServiceCommand {
 
     @Override
     protected void doExecute(Context context, Intent requestIntent, ResultReceiver callback) {
-//        InputStream is = context.getResources().openRawResource(R.raw.test);
-//        RSSParser parser = new RSSParser();
-//        Bundle data = new Bundle();
-//        Pair<RSSChannel, ArrayList<RSSItem>> pair;
-//        try {
-//            pair = parser.parse(is);
-//            if (pair != null) {
-//                data.putParcelable(Constants.KEY_RSS_CHANNEL, pair.first);
-//                data.putParcelableArrayList(Constants.KEY_RSS_ITEMS, pair.second);
-//                notifySuccess(data);
-//            } else {
-//                data.putInt(Constants.KEY_EXCEPTION_CODE, Constants.CODE_PARSE_EXCEPTION);
-//                notifyFailure(data);
-//            }
-//        } catch (IOException e) {
-//            data.putInt(Constants.KEY_EXCEPTION_CODE, Constants.CODE_IO_EXCEPTION);
-//            notifyFailure(data);
-//        } catch (XmlPullParserException e) {
-//            data.putInt(Constants.KEY_EXCEPTION_CODE, Constants.CODE_PARSE_EXCEPTION);
-//            notifyFailure(data);
-//        } finally {
-//            if (is != null) {
-//                try {
-//                    is.close();
-//                } catch (IOException e) {
-//                }
-//            }
-//        }
-
         HttpURLConnection conn = null;
         Bundle data = new Bundle();
         try {
