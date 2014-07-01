@@ -8,9 +8,12 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
+import android.text.TextUtils;
 import android.view.*;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ListView;
+import android.widget.TextView;
 import com.acbelter.rssreader.R;
 import com.acbelter.rssreader.core.Constants;
 import com.acbelter.rssreader.storage.RSSContentProvider;
@@ -44,6 +47,7 @@ public class ChannelsFragment extends ListFragment implements
         int[] to = {R.id.title, R.id.rss_link};
         mAdapter = new SimpleCursorAdapter(mMainActivity, R.layout.item_rss_channel, null,
                 from, to, 0);
+        mAdapter.setViewBinder(new ChannelViewBinder());
         setListAdapter(mAdapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -121,6 +125,21 @@ public class ChannelsFragment extends ListFragment implements
     public void onLoaderReset(Loader<Cursor> loader) {
         if (loader.getId() == Constants.CHANNELS_LOADER_ID) {
             mAdapter.swapCursor(null);
+        }
+    }
+
+    private class ChannelViewBinder implements ViewBinder {
+        @Override
+        public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+            if (columnIndex == cursor.getColumnIndex(RSSContentProvider.CHANNEL_TITLE)) {
+                if (TextUtils.isEmpty(cursor.getString(columnIndex))) {
+                    if (view.getId() == R.id.title) {
+                        ((TextView) view).setText(getString(R.string.new_channel));
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

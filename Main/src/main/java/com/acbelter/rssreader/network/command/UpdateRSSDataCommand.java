@@ -40,10 +40,8 @@ public class UpdateRSSDataCommand extends BaseNetworkServiceCommand {
     @Override
     protected void doExecute(Context context, Intent requestIntent, ResultReceiver callback) {
         HttpURLConnection conn = null;
-        Bundle data = new Bundle();
-
         for (int i = 0; i < mChannelsRssLinks.size(); i++) {
-            data.clear();
+            Bundle data = new Bundle();
             try {
                 URL url = new URL(mChannelsRssLinks.get(i));
                 conn = (HttpURLConnection) url.openConnection();
@@ -70,13 +68,13 @@ public class UpdateRSSDataCommand extends BaseNetworkServiceCommand {
                     if (progress > 100) {
                         progress = 100;
                     }
-                    sendProgress(progress);
 
                     // Last channel has been updated
-                    if (i == mChannelsRssLinks.size() - 1) {
-                        data.putBoolean(Constants.KEY_CHANNELS_UPDATED, true);
+                    if (i != mChannelsRssLinks.size() - 1) {
+                        notifyProgress(progress, data);
+                    } else {
+                        notifySuccess(data);
                     }
-                    notifySuccess(data);
                 } else {
                     data.putInt(Constants.KEY_EXCEPTION_CODE, Constants.CODE_PARSE_EXCEPTION);
                     notifyFailure(data);

@@ -19,8 +19,8 @@ public class Constants {
             "com.acbelter.rssreader.KEY_GET_REQUEST_ID";
     public static final String KEY_UPDATE_REQUEST_ID =
             "com.acbelter.rssreader.KEY_UPDATE_REQUEST_ID";
-    public static final String KEY_CHANNELS_UPDATED =
-            "com.acbelter.rssreader.KEY_CHANNELS_UPDATED";
+
+    public static final String PREF_FIRST_RUN = "first_run";
 
     public static final int CHANNELS_LOADER_ID = 1;
     public static final int CHANNEL_ITEMS_LOADER_ID = 2;

@@ -5,7 +5,9 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -52,12 +54,26 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         mFragmentManager = getSupportFragmentManager();
         mServiceHelper = new SimpleNetworkServiceHelper(getApp().getNetworkServiceHelper());
         mController = new Controller(this);
+        writeFirstRunRSSChannels();
 
         if (savedInstanceState == null) {
             showChannelsFragment();
         } else {
             mGetRequestId = savedInstanceState.getInt(Constants.KEY_GET_REQUEST_ID);
             mUpdateRequestId = savedInstanceState.getInt(Constants.KEY_UPDATE_REQUEST_ID);
+        }
+    }
+
+    private void writeFirstRunRSSChannels() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (prefs.getBoolean(Constants.PREF_FIRST_RUN, true)) {
+            String[] rssChannelsLinks = getResources().getStringArray(R.array.init_rss_channels);
+            for (String rssLink : rssChannelsLinks) {
+                RSSChannel channel = new RSSChannel();
+                channel.setRssLink(rssLink);
+                mController.insertChannel(channel);
+            }
+            prefs.edit().putBoolean(Constants.PREF_FIRST_RUN, false).commit();
         }
     }
 
@@ -293,8 +309,8 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
     public void onServiceCallback(int requestId, Intent requestIntent,
                                   int resultCode, Bundle data) {
         if (mServiceHelper.checkCommandClass(requestIntent, GetRSSDataCommand.class)) {
-            mGetRequestId = -1;
             if (resultCode == GetRSSDataCommand.RESPONSE_SUCCESS) {
+                mGetRequestId = -1;
                 RSSChannel channel = data.getParcelable(Constants.KEY_RSS_CHANNEL);
                 ArrayList<RSSItem> items = data.getParcelableArrayList(Constants.KEY_RSS_ITEMS);
 
@@ -302,25 +318,29 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
                 mController.insertChannelItems(channelId, items);
                 dismissLoadingDialog();
             } else if (resultCode == GetRSSDataCommand.RESPONSE_FAILURE) {
+                mGetRequestId = -1;
                 dismissLoadingDialog();
                 int exceptionCode = data.getInt(Constants.KEY_EXCEPTION_CODE);
                 processException(exceptionCode);
             }
         } else if (mServiceHelper.checkCommandClass(requestIntent, UpdateRSSDataCommand.class)) {
-            mUpdateRequestId = -1;
             if (resultCode == UpdateRSSDataCommand.RESPONSE_SUCCESS) {
+                mUpdateRequestId = -1;
                 RSSChannel channel = data.getParcelable(Constants.KEY_RSS_CHANNEL);
                 ArrayList<RSSItem> items = data.getParcelableArrayList(Constants.KEY_RSS_ITEMS);
-
                 mController.updateChannel(channel, items);
-                if (data.containsKey(Constants.KEY_CHANNELS_UPDATED)) {
-                    dismissLoadingDialog();
-                    showChannelsUpdatedToast();
-                }
+
+                dismissLoadingDialog();
+                showChannelsUpdatedToast();
             } else if (resultCode == UpdateRSSDataCommand.RESPONSE_PROGRESS) {
+                RSSChannel channel = data.getParcelable(Constants.KEY_RSS_CHANNEL);
+                ArrayList<RSSItem> items = data.getParcelableArrayList(Constants.KEY_RSS_ITEMS);
+                mController.updateChannel(channel, items);
+
                 int progress = data.getInt(UpdateRSSDataCommand.EXTRA_PROGRESS);
                 updateLoadingProgress(progress);
             } else if (resultCode == UpdateRSSDataCommand.RESPONSE_FAILURE) {
+                mUpdateRequestId = -1;
                 dismissLoadingDialog();
                 int exceptionCode = data.getInt(Constants.KEY_EXCEPTION_CODE);
                 processException(exceptionCode);
