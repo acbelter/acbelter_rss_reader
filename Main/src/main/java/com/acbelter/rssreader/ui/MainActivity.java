@@ -12,10 +12,13 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
+import android.text.util.Linkify;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.acbelter.nslib.NetworkApplication;
 import com.acbelter.nslib.NetworkServiceCallbackListener;
@@ -29,6 +32,7 @@ import com.acbelter.rssreader.network.command.UpdateRSSDataCommand;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class MainActivity extends ActionBarActivity implements NetworkServiceCallbackListener {
     private FragmentManager mFragmentManager;
@@ -69,9 +73,11 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         if (prefs.getBoolean(Constants.PREF_FIRST_RUN, true)) {
             String[] rssChannelsLinks = getResources().getStringArray(R.array.init_rss_channels);
             for (String rssLink : rssChannelsLinks) {
-                RSSChannel channel = new RSSChannel();
-                channel.setRssLink(rssLink);
-                mController.insertChannel(channel);
+                if (!mController.isChannelExists(rssLink)) {
+                    RSSChannel channel = new RSSChannel();
+                    channel.setRssLink(rssLink);
+                    mController.insertChannel(channel);
+                }
             }
             prefs.edit().putBoolean(Constants.PREF_FIRST_RUN, false).commit();
         }
@@ -149,6 +155,24 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
                 showClearDataDialog();
                 return true;
             }
+            case R.id.about_item: {
+                LayoutInflater inflater = getLayoutInflater();
+                View aboutView = inflater.inflate(R.layout.about, null);
+                TextView email = (TextView) aboutView.findViewById(R.id.author_email);
+                Linkify.addLinks(email, Pattern.compile("^.+$"), "mailto:");
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.about);
+                builder.setView(aboutView);
+                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.show();
+                return true;
+            }
             default: {
                 return super.onOptionsItemSelected(item);
             }
@@ -216,15 +240,15 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
         }
     }
 
-    private void addNewChannel(String RSSLink) {
-        if (mController.isChannelExists(RSSLink)) {
+    private void addNewChannel(String rssLink) {
+        if (mController.isChannelExists(rssLink)) {
             showDuplicateChannelToast();
             return;
         }
 
         LoadingDialogFragment loading = new LoadingDialogFragment();
         loading.show(mFragmentManager, LoadingDialogFragment.class.getSimpleName());
-        mGetRequestId = mServiceHelper.getRSSData(RSSLink);
+        mGetRequestId = mServiceHelper.getRSSData(rssLink);
     }
 
     private void showClearDataDialog() {
@@ -314,9 +338,14 @@ public class MainActivity extends ActionBarActivity implements NetworkServiceCal
                 RSSChannel channel = data.getParcelable(Constants.KEY_RSS_CHANNEL);
                 ArrayList<RSSItem> items = data.getParcelableArrayList(Constants.KEY_RSS_ITEMS);
 
-                long channelId = mController.insertChannel(channel);
-                mController.insertChannelItems(channelId, items);
-                dismissLoadingDialog();
+                if (!mController.isChannelExists(channel.getRssLink())) {
+                    long channelId = mController.insertChannel(channel);
+                    mController.insertChannelItems(channelId, items);
+                    dismissLoadingDialog();
+                } else {
+                    dismissLoadingDialog();
+                    showDuplicateChannelToast();
+                }
             } else if (resultCode == GetRSSDataCommand.RESPONSE_FAILURE) {
                 mGetRequestId = -1;
                 dismissLoadingDialog();
